@@ -1,0 +1,144 @@
+{
+	"contracts": {
+		"BBxBarbieCard": {
+			"source": "./contracts/BBxBarbieCard.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7"
+			}
+		},
+		"BBxBarbiePack": {
+			"source": "./contracts/BBxBarbiePack.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7"
+			}
+		},
+		"BBxBarbieToken": {
+			"source": "./contracts/BBxBarbieToken.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7"
+			}
+		},
+		"Burner": {
+			"source": "./contracts/utility/Burner.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7"
+			}
+		},
+		"FlowToken": {
+			"source": "./contracts/utility/FlowToken.cdc",
+			"aliases": {
+				"emulator": "0ae53cb6e3f42a79"
+			}
+		},
+		"FungibleToken": {
+			"source": "./contracts/utility/FungibleToken.cdc",
+			"aliases": {
+				"emulator": "ee82856bf20e2aa6"
+			}
+		},
+		"HWGarageCard": {
+			"source": "./contracts/HWGarageCard.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7"
+			}
+		},
+		"HWGarageCardV2": {
+			"source": "./contracts/HWGarageCardV2.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7"
+			}
+		},
+		"HWGaragePM": {
+			"source": "./contracts/HWGaragePM.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7"
+			}
+		},
+		"HWGaragePMV2": {
+			"source": "./contracts/HWGaragePMV2.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7"
+			}
+		},
+		"HWGaragePack": {
+			"source": "./contracts/HWGaragePack.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7"
+			}
+		},
+		"HWGaragePackV2": {
+			"source": "./contracts/HWGaragePackV2.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7"
+			}
+		},
+		"HWGarageTokenV2": {
+			"source": "./contracts/HWGarageTokenV2.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7"
+			}
+		},
+		"MetadataViews": {
+			"source": "./contracts/utility/MetadataViews.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7"
+			}
+		},
+		"NFTStorefrontV2": {
+			"source": "./contracts/utility/NFTStorefrontV2.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7"
+			}
+		},
+		"NonFungibleToken": {
+			"source": "./contracts/utility/NonFungibleToken.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7"
+			}
+		},
+		"ViewResolver": {
+			"source": "./contracts/utility/ViewResolver.cdc",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7"
+			}
+		}
+	},
+	"networks": {
+		"emulator": "127.0.0.1:3569",
+		"mainnet": "access.mainnet.nodes.onflow.org:9000",
+		"testing": "127.0.0.1:3569",
+		"testnet": "access.devnet.nodes.onflow.org:9000"
+	},
+	"accounts": {
+		"emulator-account": {
+			"address": "f8d6e0586b0a20c7",
+			"key": {
+				"type": "file",
+				"location": "emulator-account.pkey"
+			}
+		}
+	},
+	"deployments": {
+		"emulator": {
+			"emulator-account": [
+				"FungibleToken",
+				"FlowToken",
+				"Burner",
+				"MetadataViews",
+				"NonFungibleToken",
+				"ViewResolver",
+				"HWGarageCardV2",
+				"HWGarageTokenV2",
+				"HWGaragePackV2",
+				"HWGarageCard",
+				"HWGaragePack",
+				"BBxBarbieCard",
+				"BBxBarbiePack",
+				"BBxBarbieToken",
+				"NFTStorefrontV2",
+				"HWGaragePMV2",
+				"HWGaragePM"
+			]
+		}
+	}
+}

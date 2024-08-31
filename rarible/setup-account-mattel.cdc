@@ -1,121 +1,212 @@
-import NonFungibleToken from 0xNonFungibleToken
-    import MetadataViews from 0xMetadataViews
-    import FungibleToken from 0xFungibleToken
-    import FlowToken from 0xFlowToken
-    import FUSD from 0xFUSD
-    import FiatToken from 0xFiatToken
-    import HWGarageCard from 0xHWGarageCard
-    import HWGaragePack from 0xHWGaragePack
-    import HWGarageCardV2 from 0xHWGarageCardV2
-    import HWGaragePackV2 from 0xHWGaragePackV2
-    import HWGarageTokenV2 from 0xHWGarageTokenV2
-    import BBxBarbiePack from 0xBBxBarbiePack
-    import BBxBarbieCard from 0xBBxBarbieCard
-    import BBxBarbieToken from 0xBBxBarbieToken
-    import NFTStorefrontV2 from 0xNFTStorefrontV2
+import NonFungibleToken from "NonFungibleToken"
+import MetadataViews from "MetadataViews"
+import FungibleToken from "FungibleToken"
+// import USDCFlow from "USDCFlow"
+import HWGarageCard from "HWGarageCard"
+import HWGaragePack from "HWGaragePack"
+import HWGarageCardV2 from "HWGarageCardV2"
+import HWGaragePackV2 from "HWGaragePackV2"
+import HWGarageTokenV2 from "HWGarageTokenV2"
+import BBxBarbiePack from "BBxBarbiePack"
+import BBxBarbieCard from "BBxBarbieCard"
+import BBxBarbieToken from "BBxBarbieToken"
+import NFTStorefrontV2 from "NFTStorefrontV2"
 
-    transaction() {
-        prepare(acct: AuthAccount) {
+transaction() {
+		prepare(acct: auth(BorrowValue, IssueStorageCapabilityController, PublishCapability, SaveValue, UnpublishCapability) &Account) {
 
-          // Return early if the account already stores a ContractName Vault
-          if acct.borrow<&FiatToken.Vault>(from: FiatToken.VaultStoragePath) == nil {
-              // Create a new ContractName Vault and put it in storage
-              acct.save(
-                  <-FiatToken.createEmptyVault(),
-                  to: FiatToken.VaultStoragePath
-              )
+			// ******
+			// IMPORTANT UNCOMMENT WHEN USDCFLOW IS READY FOR CRESCENDO
+			// ******
+			// if signer.storage.borrow<&USDCFlow.Vault>(from: /storage/usdcFlowVault) == nil {
+			// 		// Create a new flowToken Vault and put it in storage
+			// 		signer.storage.save(<-USDCFlow.createEmptyVault(), to: /storage/usdcFlowVault)
 
-              // Create a public capability to the Vault that only exposes
-              // the deposit function through the Receiver interface
-              acct.link<&FiatToken.Vault{FungibleToken.Receiver}>(
-                  FiatToken.VaultReceiverPubPath,
-                  target: FiatToken.VaultStoragePath
-              )
+			// 		// Create a public capability to the Vault that only exposes
+			// 		// the deposit function through the Receiver interface
+			// 		let vaultCap = signer.capabilities.storage.issue<&USDCFlow.Vault>(
+			// 				/storage/usdcFlowVault
+			// 		)
 
-              // Create a public capability to the Vault that only exposes
-              // the balance field through the Balance interface
-              acct.link<&FiatToken.Vault{FungibleToken.Balance}>(
-                  FiatToken.VaultBalancePubPath,
-                  target: FiatToken.VaultStoragePath
-              )
-          }
+			// 		signer.capabilities.publish(
+			// 				vaultCap,
+			// 				at: /public/usdcFlowReceiver
+			// 		)
+
+			// 		// Create a public capability to the Vault that only exposes
+			// 		// the balance field through the Balance interface
+			// 		let balanceCap = signer.capabilities.storage.issue<&USDCFlow.Vault>(
+			// 				/storage/usdcFlowVault
+			// 		)
+
+			// 		signer.capabilities.publish(
+			// 				balanceCap,
+			// 				at: /public/usdcFlowMetadata
+			// 		)
+			// }
+
+			// HWGaragePack
+			let packCollectionData: MetadataViews.NFTCollectionData = HWGaragePack.resolveContractView(resourceType: nil, viewType: Type<MetadataViews.NFTCollectionData>()) as! MetadataViews.NFTCollectionData?
+					?? panic("ViewResolver does not resolve NFTCollectionData view")
+
+			// exit if packCollection exists
+			if acct.storage.borrow<&HWGaragePack.Collection>(from: packCollectionData.storagePath) == nil {
+					// create a new empty packCollection for HWGaragePack
+					let packCollection: @{NonFungibleToken.Collection} <- HWGaragePack.createEmptyCollection(nftType: Type<@HWGaragePack.NFT>())
+
+					// save HWGaragePack packCollection to the account
+					acct.storage.save(<-packCollection, to: packCollectionData.storagePath)
+
+					// create a public capability for the HWGaragePack packCollection
+					acct.capabilities.unpublish(packCollectionData.publicPath) // remove any current pubCap 
+					let packCollectionCap: Capability<&HWGaragePack.Collection> = acct.capabilities.storage.issue<&HWGaragePack.Collection>(packCollectionData.storagePath)
+					acct.capabilities.publish(packCollectionCap, at: packCollectionData.publicPath)
+			}
+
+			// HWGarageCard
+			let cardCollectionData: MetadataViews.NFTCollectionData = HWGarageCard.resolveContractView(resourceType: nil, viewType: Type<MetadataViews.NFTCollectionData>()) as! MetadataViews.NFTCollectionData?
+					?? panic("ViewResolver does not resolve NFTCollectionData view")
+
+			// exit if cardCollection exists
+			if acct.storage.borrow<&HWGarageCard.Collection>(from: cardCollectionData.storagePath) == nil {
+					// create a new empty cardCollection for HWGarageCard
+					let cardCollection: @{NonFungibleToken.Collection} <- HWGarageCard.createEmptyCollection(nftType: Type<@HWGarageCard.NFT>())
+
+					// save HWGarageCard cardCollection to the account
+					acct.storage.save(<-cardCollection, to: cardCollectionData.storagePath)
+
+					// create a public capability for the HWGarageCard cardCollection
+					acct.capabilities.unpublish(cardCollectionData.publicPath) // remove any current pubCap 
+					let cardCollectionCap: Capability<&HWGarageCard.Collection> = acct.capabilities.storage.issue<&HWGarageCard.Collection>(cardCollectionData.storagePath)
+					acct.capabilities.publish(cardCollectionCap, at: cardCollectionData.publicPath)
+			}
+
+			// HWGarageTokenV2
+			let tokenCollectionDataV2: MetadataViews.NFTCollectionData = HWGarageTokenV2.resolveContractView(resourceType: nil, viewType: Type<MetadataViews.NFTCollectionData>()) as! MetadataViews.NFTCollectionData?
+					?? panic("ViewResolver does not resolve NFTCollectionData view")
+
+			if acct.storage.borrow<&HWGarageTokenV2.Collection>(from: tokenCollectionDataV2.storagePath) == nil {
+					// create a new empty tokenCollection for HWGarageTokenV2
+					let tokenCollection: @{NonFungibleToken.Collection} <- HWGarageTokenV2.createEmptyCollection(nftType: Type<@HWGarageTokenV2.NFT>())
+
+					// save HWGarageTokenV2 tokenCollection to the account
+					acct.storage.save(<-tokenCollection, to: tokenCollectionDataV2.storagePath)
+
+					// create a public capability for the HWGarageTokenV2 tokenCollection
+					acct.capabilities.unpublish(tokenCollectionDataV2.publicPath) // remove any current pubCap 
+					let tokenCollectionCap = acct.capabilities.storage.issue<&HWGarageTokenV2.Collection>(tokenCollectionDataV2.storagePath)
+					acct.capabilities.publish(tokenCollectionCap, at: tokenCollectionDataV2.publicPath)
+			}
+
+			// HWGarageCardV2
+			let cardCollectionDataV2: MetadataViews.NFTCollectionData = HWGarageCardV2.resolveContractView(resourceType: nil, viewType: Type<MetadataViews.NFTCollectionData>()) as! MetadataViews.NFTCollectionData?
+					?? panic("ViewResolver does not resolve NFTCollectionData view")
+
+			// exit if cardCollection exists
+			if acct.storage.borrow<&HWGarageCardV2.Collection>(from: cardCollectionDataV2.storagePath) == nil {
+					// create a new empty cardCollection for HWGarageCardV2
+					let cardCollection: @{NonFungibleToken.Collection} <- HWGarageCardV2.createEmptyCollection(nftType: Type<@HWGarageCardV2.NFT>())
+
+					// save HWGarageCardV2 cardCollection to the account
+					acct.storage.save(<-cardCollection, to: cardCollectionDataV2.storagePath)
+
+					// create a public capability for the HWGarageCardV2 cardCollection
+					acct.capabilities.unpublish(cardCollectionDataV2.publicPath) // remove any current pubCap 
+					let cardCollectionCap = acct.capabilities.storage.issue<&HWGarageCardV2.Collection>(cardCollectionDataV2.storagePath)
+					acct.capabilities.publish(cardCollectionCap, at: cardCollectionDataV2.publicPath)
+			}
+
+			// HWGaragePackV2
+			let garagePackCollectionDataV2: MetadataViews.NFTCollectionData = HWGaragePackV2.resolveContractView(resourceType: nil, viewType: Type<MetadataViews.NFTCollectionData>()) as! MetadataViews.NFTCollectionData?
+					?? panic("ViewResolver does not resolve NFTCollectionData view")
+
+			// exit if packCollection exists
+			if acct.storage.borrow<&HWGaragePackV2.Collection>(from: garagePackCollectionDataV2.storagePath) == nil {
+					// create a new empty packCollection for HWGaragePackV2
+					let packCollection: @{NonFungibleToken.Collection} <- HWGaragePackV2.createEmptyCollection(nftType: Type<@HWGaragePackV2.NFT>())
+
+					// save HWGaragePackV2 packCollection to the account
+					acct.storage.save(<-packCollection, to: garagePackCollectionDataV2.storagePath)
+
+					// create a public capability for the HWGaragePackV2 packCollection
+					acct.capabilities.unpublish(garagePackCollectionDataV2.publicPath) // remove any current pubCap 
+					let packCollectionCap = acct.capabilities.storage.issue<&HWGaragePackV2.Collection>(garagePackCollectionDataV2.storagePath)
+					acct.capabilities.publish(packCollectionCap, at: garagePackCollectionDataV2.publicPath)
+			}
+
+		// Setup Token Collection
+
+			let barbieTokenCollectionData: MetadataViews.NFTCollectionData = BBxBarbieToken.resolveContractView(resourceType: nil, viewType: Type<MetadataViews.NFTCollectionData>()) as! MetadataViews.NFTCollectionData?
+					?? panic("ViewResolver does not resolve NFTCollectionData view")
+
+			// exit if tokenCollection exists
+			if acct.storage.borrow<&BBxBarbieToken.Collection>(from: barbieTokenCollectionData.storagePath) == nil {
+					// create a new empty tokenCollection for BBxBarbieToken
+					let tokenCollection: @{NonFungibleToken.Collection} <- BBxBarbieToken.createEmptyCollection(nftType: Type<@BBxBarbieToken.NFT>())
+
+					// save BBxBarbieToken tokenCollection to the account
+					acct.storage.save(<-tokenCollection, to: barbieTokenCollectionData.storagePath)
+
+					// create a public capability for the BBxBarbieToken tokenCollection
+					acct.capabilities.unpublish(barbieTokenCollectionData.publicPath) // remove any current pubCap 
+					let tokenCollectionCap: Capability<&BBxBarbieToken.Collection> = acct.capabilities.storage.issue<&BBxBarbieToken.Collection>(barbieTokenCollectionData.storagePath)
+					acct.capabilities.publish(tokenCollectionCap, at: barbieTokenCollectionData.publicPath)
+			}
 
 
-          if acct.borrow<&HWGarageCard.Collection>(from: HWGarageCard.CollectionStoragePath) == nil {
-    			    let collection <- HWGarageCard.createEmptyCollection()
-    					acct.save(<-collection, to: HWGarageCard.CollectionStoragePath)
-    			}
-    			if acct.getCapability<&HWGarageCard.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, HWGarageCard.HWGarageCardCollectionPublic, MetadataViews.ResolverCollection}>(HWGarageCard.CollectionPublicPath).borrow() == nil {
-    					acct.link<&HWGarageCard.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, HWGarageCard.HWGarageCardCollectionPublic, MetadataViews.ResolverCollection}>(HWGarageCard.CollectionPublicPath, target: HWGarageCard.CollectionStoragePath)
-    			}
 
-    			if acct.borrow<&HWGarageCardV2.Collection>(from: HWGarageCardV2.CollectionStoragePath) == nil {
-    					let collection <- HWGarageCardV2.createEmptyCollection()
-    					acct.save(<-collection, to: HWGarageCardV2.CollectionStoragePath)
-    			}
-    			if acct.getCapability<&HWGarageCardV2.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, HWGarageCardV2.CardCollectionPublic, MetadataViews.ResolverCollection}>(HWGarageCardV2.CollectionPublicPath).borrow() == nil {
-    					acct.link<&HWGarageCardV2.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, HWGarageCardV2.CardCollectionPublic, MetadataViews.ResolverCollection}>(HWGarageCardV2.CollectionPublicPath, target: HWGarageCardV2.CollectionStoragePath)
-    			}
+			// Setup Card Collection
 
-    			if acct.borrow<&HWGaragePack.Collection>(from: HWGaragePack.CollectionStoragePath) == nil {
-    					let collection <- HWGaragePack.createEmptyCollection()
-    					acct.save(<-collection, to: HWGaragePack.CollectionStoragePath)
-    			}
-    			if acct.getCapability<&HWGaragePack.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, HWGaragePack.PackCollectionPublic, MetadataViews.ResolverCollection}>(HWGaragePack.CollectionPublicPath).borrow() == nil {
-    					acct.link<&HWGaragePack.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, HWGaragePack.PackCollectionPublic, MetadataViews.ResolverCollection}>(HWGaragePack.CollectionPublicPath, target: HWGaragePack.CollectionStoragePath)
-    			}
+			let barbieCardCollectionData: MetadataViews.NFTCollectionData = BBxBarbieCard.resolveContractView(resourceType: nil, viewType: Type<MetadataViews.NFTCollectionData>()) as! MetadataViews.NFTCollectionData?
+					?? panic("ViewResolver does not resolve NFTCollectionData view")
 
-    			if acct.borrow<&HWGaragePackV2.Collection>(from: HWGaragePackV2.CollectionStoragePath) == nil {
-    					let collection <- HWGaragePackV2.createEmptyCollection()
-    					acct.save(<-collection, to: HWGaragePackV2.CollectionStoragePath)
-    			}
-    			if acct.getCapability<&HWGaragePackV2.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, HWGaragePackV2.PackCollectionPublic, MetadataViews.ResolverCollection}>(HWGaragePackV2.CollectionPublicPath).borrow() == nil {
-    					acct.link<&HWGaragePackV2.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, HWGaragePackV2.PackCollectionPublic, MetadataViews.ResolverCollection}>(HWGaragePackV2.CollectionPublicPath, target: HWGaragePackV2.CollectionStoragePath)
-    			}
+			// exit if cardCollection exists
+			if acct.storage.borrow<&BBxBarbieCard.Collection>(from: barbieCardCollectionData.storagePath) == nil {
+					// create a new empty cardCollection for BBxBarbieCard
+					let cardCollection: @{NonFungibleToken.Collection} <- BBxBarbieCard.createEmptyCollection(nftType: Type<@BBxBarbieCard.NFT>())
 
-    			if acct.borrow<&HWGarageTokenV2.Collection>(from: HWGarageTokenV2.CollectionStoragePath) == nil {
-    					let collection <- HWGarageTokenV2.createEmptyCollection()
-    					acct.save(<-collection, to: HWGarageTokenV2.CollectionStoragePath)
-    			}
-    			if acct.getCapability<&HWGarageTokenV2.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, HWGarageTokenV2.TokenCollectionPublic, MetadataViews.ResolverCollection}>(HWGarageTokenV2.CollectionPublicPath).borrow() == nil {
-    					acct.link<&HWGarageTokenV2.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, HWGarageTokenV2.TokenCollectionPublic, MetadataViews.ResolverCollection}>(HWGarageTokenV2.CollectionPublicPath, target: HWGarageTokenV2.CollectionStoragePath)
-    			}
+					// save BBxBarbieCard cardCollection to the account
+					acct.storage.save(<-cardCollection, to: barbieCardCollectionData.storagePath)
 
+					// create a public capability for the BBxBarbieCard cardCollection
+					acct.capabilities.unpublish(barbieCardCollectionData.publicPath) // remove any current pubCap 
+					let cardCollectionCap: Capability<&BBxBarbieCard.Collection> = acct.capabilities.storage.issue<&BBxBarbieCard.Collection>(barbieCardCollectionData.storagePath)
+					acct.capabilities.publish(cardCollectionCap, at: barbieCardCollectionData.publicPath)
+			}
+			// Setup Pack Collection
 
-          if acct.borrow<&BBxBarbieToken.Collection>(from: BBxBarbieToken.CollectionStoragePath) == nil {
-              let collection <- BBxBarbieToken.createEmptyCollection()
-              acct.save(<-collection, to: BBxBarbieToken.CollectionStoragePath)
-          }
-          if acct.getCapability<&BBxBarbieToken.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, BBxBarbieToken.TokenCollectionPublic, MetadataViews.ResolverCollection}>(BBxBarbieToken.CollectionPublicPath).borrow() == nil {
-              acct.link<&BBxBarbieToken.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, BBxBarbieToken.TokenCollectionPublic, MetadataViews.ResolverCollection}>(BBxBarbieToken.CollectionPublicPath, target: BBxBarbieToken.CollectionStoragePath)
-          }
+			let barbiePackCollectionData: MetadataViews.NFTCollectionData = BBxBarbiePack.resolveContractView(resourceType: nil, viewType: Type<MetadataViews.NFTCollectionData>()) as! MetadataViews.NFTCollectionData?
+					?? panic("ViewResolver does not resolve NFTCollectionData view")
 
-    			if acct.borrow<&BBxBarbiePack.Collection>(from: BBxBarbiePack.CollectionStoragePath) == nil {
-    					let collection <- BBxBarbiePack.createEmptyCollection()
-    					acct.save(<-collection, to: BBxBarbiePack.CollectionStoragePath)
-    			}
-    			if acct.getCapability<&BBxBarbiePack.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, BBxBarbiePack.PackCollectionPublic, MetadataViews.ResolverCollection}>(BBxBarbiePack.CollectionPublicPath).borrow() == nil {
-    					acct.link<&BBxBarbiePack.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, BBxBarbiePack.PackCollectionPublic, MetadataViews.ResolverCollection}>(BBxBarbiePack.CollectionPublicPath, target: BBxBarbiePack.CollectionStoragePath)
-    			}
+			// exit if packCollection exists
+			if acct.storage.borrow<&BBxBarbiePack.Collection>(from: barbiePackCollectionData.storagePath) == nil {
+					// create a new empty packCollection for BBxBarbiePack
+					let packCollection: @{NonFungibleToken.Collection} <- BBxBarbiePack.createEmptyCollection(nftType: Type<@BBxBarbiePack.NFT>())
 
-    			if acct.borrow<&BBxBarbieCard.Collection>(from: BBxBarbieCard.CollectionStoragePath) == nil {
-    					let collection <- BBxBarbieCard.createEmptyCollection()
-    					acct.save(<-collection, to: BBxBarbieCard.CollectionStoragePath)
-    			}
-    			if acct.getCapability<&BBxBarbieCard.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, BBxBarbieCard.CardCollectionPublic, MetadataViews.ResolverCollection}>(BBxBarbieCard.CollectionPublicPath).borrow() == nil {
-    					acct.link<&BBxBarbieCard.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, BBxBarbieCard.CardCollectionPublic, MetadataViews.ResolverCollection}>(BBxBarbieCard.CollectionPublicPath, target: BBxBarbieCard.CollectionStoragePath)
-    			}
+					// save BBxBarbiePack packCollection to the account
+					acct.storage.save(<-packCollection, to: barbiePackCollectionData.storagePath)
 
+					// create a public capability for the BBxBarbiePack packCollection
+					acct.capabilities.unpublish(barbiePackCollectionData.publicPath) // remove any current pubCap 
+					let packCollectionCap: Capability<&BBxBarbiePack.Collection> = acct.capabilities.storage.issue<&BBxBarbiePack.Collection>(barbiePackCollectionData.storagePath)
+					acct.capabilities.publish(packCollectionCap, at: barbiePackCollectionData.publicPath)
+			}
 
-    			if acct.borrow<&NFTStorefrontV2.Storefront>(from: NFTStorefrontV2.StorefrontStoragePath) == nil {
-    					let collection <- NFTStorefrontV2.createStorefront() as! @NFTStorefrontV2.Storefront
-    					acct.save(<-collection, to: NFTStorefrontV2.StorefrontStoragePath)
-    			}
-    			if acct.getCapability<&NFTStorefrontV2.Storefront{NFTStorefrontV2.StorefrontPublic}>(NFTStorefrontV2.StorefrontPublicPath).borrow() == nil {
-    					acct.link<&NFTStorefrontV2.Storefront{NFTStorefrontV2.StorefrontPublic}>(NFTStorefrontV2.StorefrontPublicPath, target: NFTStorefrontV2.StorefrontStoragePath)
-    			}
-        }
-        execute {
-        }
-    }
+			if acct.storage.borrow<&NFTStorefrontV2.Storefront>(from: NFTStorefrontV2.StorefrontStoragePath) == nil {
+				// Create a new empty Storefront
+				let storefront: @NFTStorefrontV2.Storefront <- NFTStorefrontV2.createStorefront()
+				
+				// save it to the account
+				acct.storage.save(<-storefront, to: NFTStorefrontV2.StorefrontStoragePath)
+
+				// create a public capability for the Storefront
+				let storefrontPublicCap: Capability<&{NFTStorefrontV2.StorefrontPublic}> = acct.capabilities.storage.issue<&{NFTStorefrontV2.StorefrontPublic}>(
+								NFTStorefrontV2.StorefrontStoragePath
+						)
+				acct.capabilities.publish(storefrontPublicCap, at: NFTStorefrontV2.StorefrontPublicPath)
+      }
+		}
+		execute {
+		}
+}
 
