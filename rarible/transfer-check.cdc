@@ -1,10 +1,9 @@
-    import NonFungibleToken from address
-    import BBxBarbiePack from address
+import NonFungibleToken from "NonFungibleToken"
+import BBxBarbiePack from "BBxBarbiePack"
 
-    // check BBxBarbiePack collection is available on given address
-    //
-    pub fun main(address: Address): Bool {
-        return getAccount(address)
-            .getCapability<&{BBxBarbiePack.PackCollectionPublic}>(BBxBarbiePack.CollectionPublicPath)
-            .check()
-    }
+// check BBxBarbiePack collection is available on given address
+//
+access(all)
+fun main(address: Address): Bool {
+    return getAccount(address).capabilities.get<&{BBxBarbiePack.PackCollectionPublic}>(BBxBarbiePack.CollectionPublicPath).check()
+}

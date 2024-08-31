@@ -1,17 +1,19 @@
 /*
     Cancel order
 */
-  import NFTStorefrontV2 from 0xNFTStorefrontV2
+import NFTStorefrontV2 from "NFTStorefrontV2"
 
-    transaction(listingResourceID: UInt64) {
-        let storefront: &NFTStorefrontV2.Storefront{NFTStorefrontV2.StorefrontManager}
+transaction(listingResourceID: UInt64) {
 
-        prepare(acct: AuthAccount) {
-            self.storefront = acct.borrow<&NFTStorefrontV2.Storefront{NFTStorefrontV2.StorefrontManager}>(from: NFTStorefrontV2.StorefrontStoragePath)
-                ?? panic("Missing or mis-typed NFTStorefrontV2.Storefront")
-        }
+    let storefront: auth(NFTStorefrontV2.RemoveListing) &{NFTStorefrontV2.StorefrontManager}
 
-        execute {
-            self.storefront.removeListing(listingResourceID: listingResourceID)
-        }
+    prepare(acct: auth(BorrowValue) &Account) {
+        self.storefront = acct.storage.borrow<auth(NFTStorefrontV2.RemoveListing) &NFTStorefrontV2.Storefront>(
+                from: NFTStorefrontV2.StorefrontStoragePath
+            ) ?? panic("Missing or mis-typed NFTStorefront.Storefront")
     }
+
+    execute {
+        self.storefront.removeListing(listingResourceID: listingResourceID)
+    }
+}
